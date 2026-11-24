@@ -10,6 +10,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -38,6 +39,25 @@ private val FallbackDark = darkColorScheme(
     surface = Color(0xFF1A1110)
 )
 
+// Glassmorphism palette: deep navy base with violet, cyan and pink accents.
+private val GlassDark = darkColorScheme(
+    primary = Color(0xFFB69DFF),
+    onPrimary = Color(0xFF2A0F6B),
+    primaryContainer = Color(0xFF4A2FA0),
+    onPrimaryContainer = Color(0xFFE9DDFF),
+    secondary = Color(0xFF8FE9FF),
+    secondaryContainer = Color(0xFF1F4A57),
+    tertiary = Color(0xFFFF8FB8),
+    background = Color(0xFF0B0B1A),
+    surface = Color(0xFF0B0B1A),
+    surfaceDim = Color(0xFF0B0B1A),
+    surfaceContainerLowest = Color(0xFF080814),
+    surfaceContainerLow = Color(0xFF12122A),
+    surfaceContainer = Color(0xFF181834),
+    surfaceContainerHigh = Color(0xFF20203F),
+    surfaceContainerHighest = Color(0xFF292950)
+)
+
 private fun colorSchemeFor(context: Context, dark: Boolean, dynamic: Boolean): ColorScheme = when {
     dynamic && dark -> dynamicDarkColorScheme(context)
     dynamic -> dynamicLightColorScheme(context)
@@ -63,10 +83,14 @@ fun YouFlowTheme(
     pureBlack: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val scheme = colorSchemeFor(LocalContext.current, darkTheme, dynamicColor)
-    MaterialExpressiveTheme(
-        colorScheme = if (darkTheme && pureBlack) scheme.pureBlack() else scheme,
-        motionScheme = MotionScheme.expressive(),
-        content = content
-    )
+    // Glass look applies in dark mode; "pure black" keeps its plain black look.
+    val glass = darkTheme && !pureBlack
+    val scheme = if (glass) GlassDark else colorSchemeFor(LocalContext.current, darkTheme, dynamicColor)
+    CompositionLocalProvider(LocalGlass provides glass) {
+        MaterialExpressiveTheme(
+            colorScheme = if (darkTheme && pureBlack) scheme.pureBlack() else scheme,
+            motionScheme = MotionScheme.expressive(),
+            content = content
+        )
+    }
 }
