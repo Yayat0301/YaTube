@@ -1,5 +1,5 @@
 name: CI
-
+      
 on:
   workflow_dispatch:
   push:
@@ -24,3 +24,8 @@ jobs:
         run: ./gradlew :app:runKtlint --stacktrace
       - name: Build debug APK and run unit tests
         run: ./gradlew assembleDebug testDebugUnitTest lintDebug --stacktrace -DskipFormatKtlint
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
