@@ -35,6 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.jordanempire.youflow.ui.model.VideoItem
+import dev.jordanempire.youflow.ui.theme.LocalGlass
+import dev.jordanempire.youflow.ui.theme.glass
 import dev.jordanempire.youflow.ui.util.formatCount
 import dev.jordanempire.youflow.ui.util.formatDuration
 
@@ -60,7 +62,14 @@ fun VideoCard(
     onHideChannel: (() -> Unit)? = null,
     onNotInterested: (() -> Unit)? = null
 ) {
-    Column(modifier.fillMaxWidth().clickable(onClick = onClick).padding(bottom = 16.dp)) {
+    val glass = LocalGlass.current
+    val cardModifier = if (glass) {
+        modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)
+            .glass(RoundedCornerShape(26.dp)).clickable(onClick = onClick).padding(top = 8.dp, bottom = 12.dp)
+    } else {
+        modifier.fillMaxWidth().clickable(onClick = onClick).padding(bottom = 16.dp)
+    }
+    Column(cardModifier) {
         Box(Modifier.padding(horizontal = 12.dp)) {
             VideoThumbnail(
                 video,
