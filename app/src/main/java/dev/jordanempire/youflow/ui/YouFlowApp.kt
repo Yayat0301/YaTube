@@ -246,74 +246,74 @@ fun YouFlowApp(window: WatchWindowState) {
     val glass = LocalGlass.current
 
     Box(Modifier.fillMaxSize()) {
-    if (glass) GlassBackdrop()
-    Scaffold(
-        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.background,
-        topBar = {
-            if (tab != Tab.Shorts) {
-                TopAppBar(
-                    title = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painterResource(R.drawable.ic_youflow_mark),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(30.dp)
-                            )
-                            Text(
-                                "YouFlow",
-                                style = MaterialTheme.typography.headlineSmallEmphasized,
-                                modifier = Modifier.padding(start = 8.dp)
+        if (glass) GlassBackdrop()
+        Scaffold(
+            modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.background,
+            topBar = {
+                if (tab != Tab.Shorts) {
+                    TopAppBar(
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painterResource(R.drawable.ic_youflow_mark),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                                Text(
+                                    "YouFlow",
+                                    style = MaterialTheme.typography.headlineSmallEmphasized,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { searching = true }) { Icon(Icons.Rounded.Search, contentDescription = "Search") }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.surface,
+                            scrolledContainerColor = if (glass) Color(0x66141230) else MaterialTheme.colorScheme.surfaceContainer
+                        ),
+                        scrollBehavior = scrollBehavior
+                    )
+                }
+            },
+            bottomBar = {
+                Column {
+                    if (hasVideo && !window.expanded) {
+                        MiniPlayer(engine, onExpand = { window.expanded = true }, onClose = { engine.stop() })
+                    }
+                    ShortNavigationBar(
+                        modifier = if (glass) {
+                            Modifier.glass(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), alpha = 0.08f)
+                        } else {
+                            Modifier
+                        },
+                        containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer
+                    ) {
+                        tabs.forEach { entry ->
+                            ShortNavigationBarItem(
+                                selected = tab == entry,
+                                onClick = {
+                                    tab = entry
+                                    stack = ArrayList()
+                                },
+                                icon = { Icon(if (tab == entry) entry.selected else entry.unselected, contentDescription = null) },
+                                label = { Text(entry.label) }
                             )
                         }
-                    },
-                    actions = {
-                        IconButton(onClick = { searching = true }) { Icon(Icons.Rounded.Search, contentDescription = "Search") }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.surface,
-                        scrolledContainerColor = if (glass) Color(0x66141230) else MaterialTheme.colorScheme.surfaceContainer
-                    ),
-                    scrollBehavior = scrollBehavior
-                )
-            }
-        },
-        bottomBar = {
-            Column {
-                if (hasVideo && !window.expanded) {
-                    MiniPlayer(engine, onExpand = { window.expanded = true }, onClose = { engine.stop() })
-                }
-                ShortNavigationBar(
-                    modifier = if (glass) {
-                        Modifier.glass(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), alpha = 0.08f)
-                    } else {
-                        Modifier
-                    },
-                    containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer
-                ) {
-                    tabs.forEach { entry ->
-                        ShortNavigationBarItem(
-                            selected = tab == entry,
-                            onClick = {
-                                tab = entry
-                                stack = ArrayList()
-                            },
-                            icon = { Icon(if (tab == entry) entry.selected else entry.unselected, contentDescription = null) },
-                            label = { Text(entry.label) }
-                        )
                     }
                 }
             }
+        ) { padding ->
+            when (tab) {
+                Tab.Home -> HomeScreen(actions, padding)
+                Tab.Shorts -> ShortsScreen(actions, padding)
+                Tab.Subscriptions -> SubscriptionsScreen(actions, padding)
+                Tab.You -> YouScreen(actions, padding)
+            }
         }
-    ) { padding ->
-        when (tab) {
-            Tab.Home -> HomeScreen(actions, padding)
-            Tab.Shorts -> ShortsScreen(actions, padding)
-            Tab.Subscriptions -> SubscriptionsScreen(actions, padding)
-            Tab.You -> YouScreen(actions, padding)
-        }
-    }
     }
 
     val top = stack.lastOrNull()
