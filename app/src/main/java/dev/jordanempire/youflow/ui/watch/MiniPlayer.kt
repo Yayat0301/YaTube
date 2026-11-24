@@ -29,12 +29,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import dev.jordanempire.youflow.media.engine.PlaybackEngine
+import dev.jordanempire.youflow.ui.theme.LocalGlass
+import dev.jordanempire.youflow.ui.theme.glass
 
 /** Docked above the navigation bar while a video plays but the watch page is collapsed. */
 @Composable
@@ -42,11 +45,14 @@ fun MiniPlayer(engine: PlaybackEngine, onExpand: () -> Unit, onClose: () -> Unit
     val state by engine.state.collectAsState()
     val position by engine.position.collectAsState()
     val entry = state.entry ?: return
+    val glass = LocalGlass.current
     Surface(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp).clickable(onClick = onExpand),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+            .then(if (glass) Modifier.glass(RoundedCornerShape(20.dp), alpha = 0.12f) else Modifier)
+            .clickable(onClick = onExpand),
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        tonalElevation = 3.dp
+        color = if (glass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = if (glass) 0.dp else 3.dp
     ) {
         Column {
             Row(Modifier.height(64.dp), verticalAlignment = Alignment.CenterVertically) {
