@@ -1,0 +1,35 @@
+
+name: Build YaTube APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17, 21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleContinuous
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: YaTube-APK
+          path: app/build/outputs/apk/continuous/app-continuous.apk
