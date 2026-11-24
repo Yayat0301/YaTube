@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PlayCircle
@@ -76,6 +77,9 @@ import dev.jordanempire.youflow.ui.settings.SettingsScreen
 import dev.jordanempire.youflow.ui.shorts.ShortsScreen
 import dev.jordanempire.youflow.ui.subscriptions.ManageSubscriptionsScreen
 import dev.jordanempire.youflow.ui.subscriptions.SubscriptionsScreen
+import dev.jordanempire.youflow.ui.theme.GlassBackdrop
+import dev.jordanempire.youflow.ui.theme.LocalGlass
+import dev.jordanempire.youflow.ui.theme.glass
 import dev.jordanempire.youflow.ui.watch.MiniPlayer
 import dev.jordanempire.youflow.ui.watch.WatchScreen
 import dev.jordanempire.youflow.ui.you.YouScreen
@@ -239,9 +243,13 @@ fun YouFlowApp(window: WatchWindowState) {
 
     val hasVideo = playerState.entry != null
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val glass = LocalGlass.current
 
+    Box(Modifier.fillMaxSize()) {
+    if (glass) GlassBackdrop()
     Scaffold(
         modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.background,
         topBar = {
             if (tab != Tab.Shorts) {
                 TopAppBar(
@@ -263,6 +271,10 @@ fun YouFlowApp(window: WatchWindowState) {
                     actions = {
                         IconButton(onClick = { searching = true }) { Icon(Icons.Rounded.Search, contentDescription = "Search") }
                     },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = if (glass) Color(0x66141230) else MaterialTheme.colorScheme.surfaceContainer
+                    ),
                     scrollBehavior = scrollBehavior
                 )
             }
@@ -272,7 +284,14 @@ fun YouFlowApp(window: WatchWindowState) {
                 if (hasVideo && !window.expanded) {
                     MiniPlayer(engine, onExpand = { window.expanded = true }, onClose = { engine.stop() })
                 }
-                ShortNavigationBar {
+                ShortNavigationBar(
+                    modifier = if (glass) {
+                        Modifier.glass(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp), alpha = 0.08f)
+                    } else {
+                        Modifier
+                    },
+                    containerColor = if (glass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer
+                ) {
                     tabs.forEach { entry ->
                         ShortNavigationBarItem(
                             selected = tab == entry,
@@ -294,6 +313,7 @@ fun YouFlowApp(window: WatchWindowState) {
             Tab.Subscriptions -> SubscriptionsScreen(actions, padding)
             Tab.You -> YouScreen(actions, padding)
         }
+    }
     }
 
     val top = stack.lastOrNull()
